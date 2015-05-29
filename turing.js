@@ -43,8 +43,11 @@ function tm() {
     
     this.nextStep = function () {
         var i = 0, moved = false;
-        if (this.currentState >= 0) {
-            while (i < this.states[this.currentState].transitions.length && moved === false) {
+        if (this.currentChar == this.tape.length) {
+            this.tape.push(null);
+        }
+        if (this.currentState >= 0 && this.currentChar >= 0) {
+            while (moved === false && i < this.states[this.currentState].transitions.length) {
                 if (this.states[this.currentState].transitions[i].input === this.tape[this.currentChar]) {
                     this.tape[this.currentChar] = this.states[this.currentState].transitions[i].output;
                     if (this.states[this.currentState].transitions[i].direction === "L") {
@@ -69,5 +72,13 @@ function tm() {
         }
         
         return this.currentState;
+    }
+    
+    this.output = function () {
+        if (this.currentState == -1) {
+            return this.tape.slice(1);
+        } else {
+            return null;
+        }
     }
 }
