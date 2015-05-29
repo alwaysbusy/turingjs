@@ -3,8 +3,388 @@
     <head>
         <title>turing.js</title>
         <script type="application/javascript" src="turing.js"></script>
+        <script type="application/javascript">
+            function changeInputAlphabet() {
+                var i = 0;
+                while (window.document.getElementById('inputalphabet-' + i)) {
+                    if (window.document.getElementById('inputalphabet-' + i).value == "" && window.document.getElementById('inputalphabet-' + (i+1))) {
+                        //Remove and shuffle up
+                        var j = i+1;
+                        window.document.getElementById('inputalphabet').removeChild(window.document.getElementById('inputalphabet-' + i));
+                        while (window.document.getElementById('inputalphabet-' + j)) {
+                            window.document.getElementById('inputalphabet-' + j).id = 'inputalphabet-' + (j-1);
+                            //window.document.getElementById('inputalphabet-' + j).name = 'inputalpahabet-' + (j-1);
+                            j++;
+                        }
+                    }
+                    i++;
+                }
+                if (window.document.getElementById('inputalphabet-' + (i-1))) {
+                    if (window.document.getElementById('inputalphabet-' + (i-1)).value != "") {
+                        var newElem = window.document.createElement('input');
+                        newElem.setAttribute('type','text');
+                        newElem.setAttribute('maxlength',1);
+                        newElem.setAttribute('id','inputalphabet-' + i);
+                        newElem.setAttribute('name','inputalphabet-' + i);
+                        newElem.addEventListener('keyup', changeInputAlphabet);
+                        window.document.getElementById('inputalphabet').appendChild(newElem);
+                    }
+                }
+                
+                updateTransitionsSymbols();
+            }
+            
+            function changeTapeAlphabet() {
+                var i = 0;
+                while (window.document.getElementById('tapealphabet-' + i)) {
+                    if (window.document.getElementById('tapealphabet-' + i).value == "" && window.document.getElementById('tapealphabet-' + (i+1))) {
+                        //Remove and shuffle up
+                        var j = i+1;
+                        window.document.getElementById('tapealphabet').removeChild(window.document.getElementById('tapealphabet-' + i));
+                        while (window.document.getElementById('tapealphabet-' + j)) {
+                            window.document.getElementById('tapealphabet-' + j).id = 'tapealphabet-' + (j-1);
+                            j++;
+                        }
+                    }
+                    i++;
+                }
+                if (window.document.getElementById('tapealphabet-' + (i-1))) {
+                    if (window.document.getElementById('tapealphabet-' + (i-1)).value != "") {
+                        var newElem = window.document.createElement('input');
+                        newElem.setAttribute('type','text');
+                        newElem.setAttribute('maxlength',1);
+                        newElem.setAttribute('id','tapealphabet-' + i);
+                        newElem.setAttribute('name','tapealphabet-' + i);
+                        newElem.addEventListener('keyup', changeTapeAlphabet);
+                        window.document.getElementById('tapealphabet').appendChild(newElem);
+                    }
+                }
+                
+                updateTransitionsSymbols();
+            }
+            
+            function removeTransition() {
+                removeTransitionByNumber(this.id.split('-')[1]);
+            }
+            
+            function removeTransitionByNumber(number) {
+                var i = number;
+                window.document.getElementById("transitions").removeChild(window.document.getElementById('transitions-' + number));
+                while (window.document.getElementById('transitions-' + (i+1))) {
+                    window.document.getElementById('transitions-' + (i+1)).id = 'transitions-' + i;
+                    i++;
+                }
+            }
+            
+            function addTransition() {
+                var i = 0, j = 0;
+                while (window.document.getElementById('transitions-' + i)) {
+                    i++;
+                }
+                
+                
+                var newtr = window.document.createElement('tr');
+                newtr.setAttribute('id', 'transitions-' + i);
+                var nulloption = window.document.createElement('option');
+                nulloption.setAttribute('value','null');
+                nulloption.appendChild(window.document.createTextNode('null'));
+                
+                var selectstart = window.document.createElement('select');
+                selectstart.setAttribute('id','transitions-' + i + '-start');
+                var selectend = window.document.createElement('select');
+                selectend.setAttribute('id', 'transitions-' + i + '-end');
+                
+                for (j = 0; j < window.document.getElementById('states').value; j++) {
+                    var number = window.document.createElement('option');
+                    number.setAttribute('value', j);
+                    number.appendChild(window.document.createTextNode('q' + j));
+                    selectstart.appendChild(number);
+                    selectend.appendChild(number.cloneNode(true));
+                }
+                
+                var acceptstate = window.document.createElement('option');
+                acceptstate.setAttribute('value',-1);
+                acceptstate.appendChild(window.document.createTextNode('ha'));
+                selectend.appendChild(acceptstate);
+                
+                var selectinput = window.document.createElement('select');
+                selectinput.setAttribute('id', 'transitions-' + i + '-input');
+                selectinput.appendChild(nulloption);
+                var selectoutput = window.document.createElement('select');
+                selectoutput.setAttribute('id', 'transitions-' + i + '-output');
+                selectoutput.appendChild(nulloption.cloneNode(true));
+                
+                j = 0;
+                while (window.document.getElementById('inputalphabet-' + j)) {
+                    if (window.document.getElementById('inputalphabet-' + j).value !== '') {
+                        var character = window.document.createElement('option');
+                        character.setAttribute('value', window.document.getElementById('inputalphabet-' + j).value);
+                        character.appendChild(window.document.createTextNode(window.document.getElementById('inputalphabet-' + j).value));
+                        selectinput.appendChild(character);
+                        selectoutput.appendChild(character.cloneNode(true));
+                    }
+                    j++;
+                }
+                j = 0;
+                while (window.document.getElementById('tapealphabet-' + j)) {
+                    if (window.document.getElementById('tapealphabet-' + j).value !== '') {
+                        var character = window.document.createElement('option');
+                        character.setAttribute('value', window.document.getElementById('tapealphabet-' + j).value);
+                        character.appendChild(window.document.createTextNode(window.document.getElementById('tapealphabet-' + j).value));
+                        selectinput.appendChild(character);
+                        selectoutput.appendChild(character.cloneNode(true));
+                    }
+                    j++;
+                }
+                
+                var starttd = window.document.createElement('td');
+                starttd.appendChild(selectstart);
+                newtr.appendChild(starttd);
+                var inputtd = window.document.createElement('td');
+                inputtd.appendChild(selectinput);
+                newtr.appendChild(inputtd);
+                var outputtd = window.document.createElement('td');
+                outputtd.appendChild(selectoutput);
+                newtr.appendChild(outputtd);
+                var endtd = window.document.createElement('td');
+                endtd.appendChild(selectend);
+                newtr.appendChild(endtd);
+                
+                var selectmove = window.document.createElement('select');
+                selectmove.setAttribute('id', 'transitions-' + i + '-move');
+                var optionl = window.document.createElement('option');
+                optionl.setAttribute('value', 'L');
+                optionl.appendChild(window.document.createTextNode('L'));
+                selectmove.appendChild(optionl);
+                var options = window.document.createElement('option');
+                options.setAttribute('value', 'S');
+                options.appendChild(window.document.createTextNode('S'));
+                selectmove.appendChild(options);
+                var optionr = window.document.createElement('option');
+                optionr.setAttribute('value', 'R');
+                optionr.appendChild(window.document.createTextNode('R'));
+                selectmove.appendChild(optionr);
+                var movetd = window.document.createElement('td');
+                movetd.appendChild(selectmove);
+                newtr.appendChild(movetd);
+                
+                var removea = window.document.createElement('a');
+                removea.setAttribute('title', 'Remove');
+                removea.setAttribute('id', 'transitions-' + i + '-remove');
+                removea.appendChild(window.document.createTextNode('Remove'));
+                removea.addEventListener('click', removeTransition);
+                var removetd = window.document.createElement('td');
+                removetd.appendChild(removea);
+                newtr.appendChild(removetd);
+                
+                window.document.getElementById('transitions').appendChild(newtr);
+            }
+            
+            function updateTransitionsSymbols() {
+                var i = 0, symbolList = new Array('null');
+                while (window.document.getElementById('inputalphabet-' + i)) {
+                    if (window.document.getElementById('inputalphabet-' + i).value !== '') {
+                        symbolList.push(window.document.getElementById('inputalphabet-' + i).value)
+                    }
+                    i++;
+                }
+                i = 0;
+                while (window.document.getElementById('tapealphabet-' + i)) {
+                    if (window.document.getElementById('tapealphabet-' + i).value !== '') {
+                        symbolList.push(window.document.getElementById('tapealphabet-' + i).value)
+                    }
+                    i++;
+                }
+                
+                var selectList = window.document.createElement('select');
+                for(i = 0; i < symbolList.length; i++) {
+                    var character = window.document.createElement('option');
+                    character.setAttribute('value', symbolList[i]);
+                    character.appendChild(window.document.createTextNode(symbolList[i]));
+                    selectList.appendChild(character);
+                }
+                
+                i = 0;
+                while (window.document.getElementById('transitions-' + i)) {
+                    //Store current values
+                    var currentValIn = window.document.getElementById('transitions-' + i + '-input').value, currentValOut = window.document.getElementById('transitions-' + i + '-output').value;
+                    
+                    //Remove old list
+                    var inputtd = window.document.getElementById('transitions-' + i + '-input').parentElement, outputtd = window.document.getElementById('transitions-' + i + '-output').parentElement;
+                    inputtd.removeChild(window.document.getElementById('transitions-' + i + '-input'));
+                    outputtd.removeChild(window.document.getElementById('transitions-' + i + '-output'));
+                    
+                    //Test if symbol in new list
+                    var inList = false, outList = false;
+                    for (var j = 0; j < symbolList.length; j++) {
+                        if (symbolList[j] == currentValIn) {
+                            inList = true;
+                        }
+                        if (symbolList[j] == currentValOut) {
+                            outList = true;
+                        }
+                    }
+                    if (inList && outList) {
+                        //Add new lists
+                        var selectIn = selectList.cloneNode(true), selectOut = selectList.cloneNode(true);
+                        selectIn.setAttribute('id', 'transitions-' + i + '-input');
+                        selectIn.setAttribute('value', currentValIn);
+                        selectOut.setAttribute('id', 'transitions-' + i + '-output');
+                        selectOut.setAttribute('value', currentValOut);
+                        inputtd.appendChild(selectIn);
+                        outputtd.appendChild(selectOut);
+                        i++;
+                    } else {
+                        //Remove transition as no longer valid
+                        removeTransitionByNumber(i);
+                    }
+                }
+            }
+            
+            function updateStates() {
+                var numStates = window.document.getElementById('states').value;
+                var selectStates = window.document.createElement('select');
+                var i = 0;
+                for(i = 0; i < numStates; i++) {
+                    var state = window.document.createElement('option');
+                    state.setAttribute('value', i);
+                    state.appendChild(window.document.createTextNode('q' + i));
+                    selectStates.appendChild(state);
+                }
+                
+                i = 0;
+                while(window.document.getElementById('transitions-' + i)) {
+                    var currentStart = window.document.getElementById('transitions-' + i + '-start').value, currentEnd = window.document.getElementById('transitions-' + i + '-end').value;
+                    var starttd = window.document.getElementById('transitions-' + i + '-start').parentElement, endtd = window.document.getElementById('transitions-' + i + '-end').parentElement;
+                    
+                    starttd.removeChild(window.document.getElementById('transitions-' + i + '-start'));
+                    endtd.removeChild(window.document.getElementById('transitions-' + i + '-end'));
+                    
+                    if (currentStart >= 0 && currentStart < numStates && currentEnd >= -1 && currentEnd < numStates) {
+                        //Insert new lists
+                        var startSelect = selectStates.cloneNode(true);
+                        startSelect.setAttribute('id', 'transitions-' + i + '-start');
+                        startSelect.setAttribute('value', currentStart);
+                        var endSelect = selectStates.cloneNode(true);
+                        endSelect.setAttribute('id', 'transitions-' + i + '-end');
+                        var acceptState = window.document.createElement('option');
+                        acceptState.setAttribute('value', -1);
+                        acceptState.appendChild(window.document.createTextNode('ha'));
+                        endSelect.appendChild(acceptState);
+                        endSelect.setAttribute('value', currentEnd);
+                        starttd.appendChild(startSelect);
+                        endtd.appendChild(endSelect);
+                        i++;
+                    } else {
+                        removeTransitionByNumber(i);
+                    }
+                }
+            }
+            
+            function changeInput() {
+                var i = 0;
+                while (window.document.getElementById('input-' + i)) {
+                    if (window.document.getElementById('input-' + i).value == "" && window.document.getElementById('input-' + (i+1))) {
+                        //Remove and shuffle up
+                        var j = i+1;
+                        window.document.getElementById('input').removeChild(window.document.getElementById('input-' + i));
+                        while (window.document.getElementById('input-' + j)) {
+                            window.document.getElementById('input-' + j).id = 'input-' + (j-1);
+                            j++;
+                        }
+                    }
+                    i++;
+                }
+                if (window.document.getElementById('input-' + (i-1))) {
+                    if (window.document.getElementById('input-' + (i-1)).value != "") {
+                        var newElem = window.document.createElement('input');
+                        newElem.setAttribute('type','text');
+                        newElem.setAttribute('maxlength',1);
+                        newElem.setAttribute('id','input-' + i);
+                        newElem.setAttribute('name','input-' + i);
+                        newElem.addEventListener('keyup', changeInput);
+                        window.document.getElementById('input').appendChild(newElem);
+                    }
+                }
+            }
+            
+            function runMachine() {
+                var input = new Array(), i = 0, valid = true;
+                while (window.document.getElementById('input-' + i) && valid == true) {
+                    if (window.document.getElementById('input-' + i).value !== '') {
+                        var j = 0;
+                        var found = false;
+                        while (window.document.getElementById('inputalphabet-' + j) && found == false) {
+                            if (window.document.getElementById('inputalphabet-' + j).value == window.document.getElementById('input-' + i).value) {
+                                found = true;
+                            }
+                            j++;
+                        }
+                        if (found == true) {
+                            input.push(window.document.getElementById('input-' + i).value);
+                        } else {
+                            valid = false;
+                        }
+                    }
+                    i++;
+                }
+                if (valid == true) {
+                    var machine = new tm();
+                    for (i = 0; i < window.document.getElementById('states').value; i++) {
+                        machine.addState();
+                    }
+                    i = 0;
+                    while (window.document.getElementById('transitions-' + i)) {
+                        var start = window.document.getElementById('transitions-' + i + '-start').options[window.document.getElementById('transitions-' + i + '-start').selectedIndex].value,
+ inputsymbol = window.document.getElementById('transitions-' + i + '-input').options[window.document.getElementById('transitions-' + i + '-input').selectedIndex].value, outputsymbol = window.document.getElementById('transitions-' + i + '-output').options[window.document.getElementById('transitions-' + i + '-output').selectedIndex].value, end = window.document.getElementById('transitions-' + i + '-end').options[window.document.getElementById('transitions-' + i + '-end').selectedIndex].value, move = window.document.getElementById('transitions-' + i + '-move').options[window.document.getElementById('transitions-' + i + '-move').selectedIndex].value;
+                        if (inputsymbol == 'null') {
+                            inputsymbol = null;
+                        }
+                        if (outputsymbol == 'null') {
+                            outputsymbol = null;
+                        }
+                        machine.addTransition(start, inputsymbol, outputsymbol, end, move);
+                        i++;
+                    }
+                    machine.setInput(input);
+                    machine.runToEnd();
+                    var output = machine.output();
+                    if (output !== null) {
+                        window.document.getElementById('output').innerHTML = 'Accepted - ' + output.map(function (item) {return item == null ? '|' : item;}).join('');
+                    } else {
+                        window.document.getElementById('output').innerHTML = 'Rejected';
+                    }
+                } else {
+                    window.document.getElementById('output').innerHTML = 'Invalid Input - Symbol not in Input Alphabet';
+                }
+            }
+        </script>
     </head>
     <body>
-    
+        <h1>turing.js</h1>
+        <p>A Javascript turing machine</p>
+        <h2>Setup Machine</h2>
+        <p><label for="states">Number of States </label><input type="number" min="0" id="states" name="states" value="0" onchange="updateStates();" /></p>
+        <p id="inputalphabet"><label for="inputalphabet-0">Input Alphabet </label><input type="text" id="inputalphabet-0" name="inputalphabet-0" maxlength="1" onkeyup="changeInputAlphabet();" /></p>
+        <p id="tapealphabet"><label for="tapealphabet-0">Tape Alphabet </label><input type="text" id="tapealphabet-0" name="tapealphabet-0" maxlength="1" onkeyup="changeTapeAlphabet();" /></p>
+        <h2>Transitions</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Start State</th>
+                    <th>Input Character</th>
+                    <th>Output Character</th>
+                    <th>Next State</th>
+                    <th>Move Tape Head</th>
+                    <th>&nbsp;</th>
+                </tr>
+            </thead>
+            <tbody id="transitions">
+            </tbody>
+        </table>
+        <p><a onclick="addTransition();" title="Add">Add Transition</a></p>
+        <h2>Machine</h2>
+        <p>Input (null is represented by a bar |) <span id="input"><input type="text" maxlength="1" id="input-0" name="input-0" onkeyup="changeInput();" /></span><button onclick="runMachine();">Run Machine</button></p>
+        <p>Output <span id="output"></span></p>
     </body>
 </html>
