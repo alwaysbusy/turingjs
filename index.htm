@@ -34,6 +34,7 @@
                 }
                 
                 updateTransitionsSymbols();
+                turing = null;
             }
             
             function changeTapeAlphabet() {
@@ -63,6 +64,7 @@
                 }
                 
                 updateTransitionsSymbols();
+                turing = null;
             }
             
             function removeTransition() {
@@ -76,6 +78,7 @@
                     window.document.getElementById('transitions-' + (i+1)).id = 'transitions-' + i;
                     i++;
                 }
+                turing = null;
             }
             
             function addTransition() {
@@ -180,6 +183,8 @@
                 newtr.appendChild(removetd);
                 
                 window.document.getElementById('transitions').appendChild(newtr);
+                
+                turing = null;
             }
             
             function updateTransitionsSymbols() {
@@ -230,9 +235,9 @@
                         //Add new lists
                         var selectIn = selectList.cloneNode(true), selectOut = selectList.cloneNode(true);
                         selectIn.setAttribute('id', 'transitions-' + i + '-input');
-                        selectIn.setAttribute('value', currentValIn);
+                        selectIn.selectedIndex = selectIn.options.indexOf(currentValIn);
                         selectOut.setAttribute('id', 'transitions-' + i + '-output');
-                        selectOut.setAttribute('value', currentValOut);
+                        selectOut.selectedIndex = selectOut.options.indexOf(currentValOut);
                         inputtd.appendChild(selectIn);
                         outputtd.appendChild(selectOut);
                         i++;
@@ -266,14 +271,18 @@
                         //Insert new lists
                         var startSelect = selectStates.cloneNode(true);
                         startSelect.setAttribute('id', 'transitions-' + i + '-start');
-                        startSelect.setAttribute('value', currentStart);
+                        startSelect.selectedIndex = currentStart;
                         var endSelect = selectStates.cloneNode(true);
                         endSelect.setAttribute('id', 'transitions-' + i + '-end');
                         var acceptState = window.document.createElement('option');
                         acceptState.setAttribute('value', -1);
                         acceptState.appendChild(window.document.createTextNode('ha'));
                         endSelect.appendChild(acceptState);
-                        endSelect.setAttribute('value', currentEnd);
+                        if (currentEnd == -1) {
+                            endSelect.selectedIndex = endSelect.options.length - 1;
+                        } else {
+                            endSelect.selectedIndex = currentEnd;
+                        }
                         starttd.appendChild(startSelect);
                         endtd.appendChild(endSelect);
                         i++;
@@ -308,6 +317,8 @@
                         window.document.getElementById('input').appendChild(newElem);
                     }
                 }
+                
+                turing = null;
             }
             
             function runMachine() {
