@@ -4,6 +4,8 @@
         <title>turing.js</title>
         <script type="application/javascript" src="turing.js"></script>
         <script type="application/javascript">
+            var turing = null;
+            
             function changeInputAlphabet() {
                 var i = 0;
                 while (window.document.getElementById('inputalphabet-' + i)) {
@@ -358,6 +360,85 @@
                     window.document.getElementById('output').innerHTML = 'Invalid Input - Symbol not in Input Alphabet';
                 }
             }
+            
+            function stepThrough() {
+                if (turing == null) {
+                    var input = new Array(), i = 0, valid = true;
+                    while (window.document.getElementById('input-' + i) && valid == true) {
+                        if (window.document.getElementById('input-' + i).value !== '') {
+                            var j = 0;
+                            var found = false;
+                            while (window.document.getElementById('inputalphabet-' + j) && found == false) {
+                                if (window.document.getElementById('inputalphabet-' + j).value == window.document.getElementById('input-' + i).value) {
+                                    found = true;
+                                }
+                                j++;
+                            }
+                            if (found == true) {
+                                input.push(window.document.getElementById('input-' + i).value);
+                            } else {
+                                valid = false;
+                            }
+                        }
+                        i++;
+                    }
+                    if (valid == true) {
+                        var machine = new tm();
+                        for (i = 0; i < window.document.getElementById('states').value; i++) {
+                            machine.addState();
+                        }
+                        i = 0;
+                        while (window.document.getElementById('transitions-' + i)) {
+                            var start = window.document.getElementById('transitions-' + i + '-start').options[window.document.getElementById('transitions-' + i + '-start').selectedIndex].value,
+     inputsymbol = window.document.getElementById('transitions-' + i + '-input').options[window.document.getElementById('transitions-' + i + '-input').selectedIndex].value, outputsymbol = window.document.getElementById('transitions-' + i + '-output').options[window.document.getElementById('transitions-' + i + '-output').selectedIndex].value, end = window.document.getElementById('transitions-' + i + '-end').options[window.document.getElementById('transitions-' + i + '-end').selectedIndex].value, move = window.document.getElementById('transitions-' + i + '-move').options[window.document.getElementById('transitions-' + i + '-move').selectedIndex].value;
+                            if (inputsymbol == 'null') {
+                                inputsymbol = null;
+                            }
+                            if (outputsymbol == 'null') {
+                                outputsymbol = null;
+                            }
+                            machine.addTransition(start, inputsymbol, outputsymbol, end, move);
+                            i++;
+                        }
+                        machine.setInput(input);
+                        turing = machine;
+                    } else {
+                        window.document.getElementById('output').innerHTML = 'Invalid Input - Symbol not in Input Alphabet';
+                    }
+                } else {
+                    turing.nextStep();
+                }
+                
+                var output, i = 0;
+                if (turing.currentState == -1) {
+                    output = 'Accepted';
+                } else if (turing.currentState == -2) {
+                    output = 'Rejected';
+                } else {
+                    output = 'Running';
+                }
+                output += '<table><tr>';
+                for (i = 0; i < turing.currentChar; i++) {
+                    output += '<td>&nbsp;</td>';
+                }
+                if (turing.currentState == -1) {
+                    output += '<td>ha</td>';
+                } else if (turing.currentState == -2) {
+                    output += '<td>hr</td>';
+                } else {
+                    output += '<td>q' + turing.currentState + '</td>';
+                }
+                output += '</tr><tr>';
+                for (i = 0; i < turing.tape.length; i++) {
+                    if (turing.tape[i] === null) {
+                        output += '<td>|</td>';
+                    } else {
+                        output += '<td>' + turing.tape[i] + '</td>';
+                    }
+                }
+                output += '</tr></table>';
+                window.document.getElementById('output').innerHTML = output;
+            }
         </script>
     </head>
     <body>
@@ -384,7 +465,7 @@
         </table>
         <p><a onclick="addTransition();" title="Add">Add Transition</a></p>
         <h2>Machine</h2>
-        <p>Input (null is represented by a bar |) <span id="input"><input type="text" maxlength="1" id="input-0" name="input-0" onkeyup="changeInput();" /></span><button onclick="runMachine();">Run Machine</button></p>
+        <p>Input (null is represented by a bar |) <span id="input"><input type="text" maxlength="1" id="input-0" name="input-0" onkeyup="changeInput();" /></span><button onclick="runMachine();">Run Machine</button><button onclick="stepThrough();">Step-through</button></p>
         <p>Output <span id="output"></span></p>
     </body>
 </html>
